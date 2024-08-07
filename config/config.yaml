@@ -1,0 +1,44 @@
+# 存储巡查数据
+mysql:
+  dsn: root:root@tcp(127.0.0.1:23306)/inspect?charset=utf8mb4&multiStatements=true&collation=utf8mb4_general_ci&parseTime=True&loc=UTC&timeout=10s&readTimeout=5s&writeTimeout=5s
+# 查询的监控数据
+prometheus:
+  - name: prometheus-dev
+    addr: http://172.17.3.80:9090
+    accessId:
+    accessSecret:
+# 需要巡查的应用名
+apps:
+  - app-api
+# 查询的监控指标
+metrics:
+  - name: PodCount
+    desc: 实例数
+    query: count(kube_pod_info{namespace="default",pod=~"%s-\\w{8,}-\\w{4,}"})
+    type: 1
+    targetType: svc
+    aggrFunc: max
+    prometheusName: prometheus-dev
+  - name: CpuUsage
+    desc: Cpu使用核心数
+    query: node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="default",pod=~"%s-\\w{8,}-\\w{4,}"}
+    type: 1
+    targetType: svc
+    aggrFunc: max
+    prometheusName: prometheus-dev
+  - name: CpuReq
+    desc: CpuReq
+    query: kube_pod_container_resource_requests{resource="cpu",namespace="default", pod=~"%s-\\w{8,}-\\w{4,}"}
+    type: 1
+    targetType: svc
+    aggrFunc: max
+    prometheusName: prometheus-dev
+cron:
+  prometheus:
+    enableDistributedTask: false
+    enableImmediatelyRun: false
+    enableSeconds: true
+    spec: "* * * * * *"
+    delayExecType: queue
+
+
