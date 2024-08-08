@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/gotomicro/ego/task/ecron"
-	"inspect/pkg/prom"
+	"inspect/pkg/metric"
 )
 
-func PromCron() *ecron.Component {
+func HandleCron() *ecron.Component {
 	job := func(ctx context.Context) error {
-		return prom.Handle.FetchDataJob()
+		handler := metric.NewHandler()
+		return handler.FetchDataJob()
 	}
 	cron := ecron.Load("cron.prometheus").Build(ecron.WithJob(job))
 	return cron

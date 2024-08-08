@@ -19,8 +19,12 @@ Inspect 巡查工具用于服务的容量评估，帮助用户合理调整自己
   * 队列 饱和度： 队列长度 / 队列消费能力 * pod数
   * 耗时 饱和度： max耗时 / 耗时预设值
 
-# CPU
-## Cpu 利用率
+根据以上指标，我们通过`Inspect`程序，每天定时跑前一天数据，汇总得到以下图表。
+![img.png](./docs/images/img.png)
+
+
+## 部分Grafana的SQL写法
+### Cpu 利用率
 ```sql
 SELECT 
   a.time AS "time", a.target_name,max(a.val) / max(b.val) as "CPURateMAX"
@@ -33,7 +37,7 @@ WHERE
 GROUP BY
 	a.target_name
 ```
-## 最大CPU
+### 最大CPU
 ```sql
 SELECT
   time AS "time",max(val) AS "AppPodCPU", target_name
@@ -43,8 +47,7 @@ WHERE
 GROUP BY target_name
 ```
 
-# 内存
-## 内存利用率
+### 内存利用率
 ```sql
 SELECT 
   a.time AS "time",a.target_name,max(a.val) / max(b.val) as "MemRateMAX"
@@ -57,3 +60,13 @@ WHERE
 GROUP BY
 	a.target_name
 ```
+
+## 如何运行程序
+* 创建数据库：inspect
+* 在 config.yaml 的 mysql.dsn 中填好数据库地址，账号，密码
+* 安装数据库：./inspect --config=config/config.yaml --job=install
+* 执行程序: ./inspect --config=config/config.yaml
+
+## 如何观测数据
+* 导入 docs/grafana.json
+* 直接查看数据

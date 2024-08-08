@@ -4,7 +4,7 @@ mysql:
 # 查询的监控数据
 prometheus:
   - name: prometheus-dev
-    addr: http://172.17.3.80:9090
+    addr: http://127.0.0.1:9090
     accessId:
     accessSecret:
 # 需要巡查的应用名
@@ -15,24 +15,52 @@ metrics:
   - name: PodCount
     desc: 实例数
     query: count(kube_pod_info{namespace="default",pod=~"%s-\\w{8,}-\\w{4,}"})
-    type: 1
+    type: prometheus
+    typeName: prometheus-dev
     targetType: svc
     aggrFunc: max
-    prometheusName: prometheus-dev
   - name: CpuUsage
-    desc: Cpu使用核心数
+    desc: 使用Cpu核心数
     query: node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{namespace="default",pod=~"%s-\\w{8,}-\\w{4,}"}
-    type: 1
+    type: prometheus
+    typeName: prometheus-dev
     targetType: svc
     aggrFunc: max
-    prometheusName: prometheus-dev
-  - name: CpuReq
-    desc: CpuReq
+  - name: CpuRequest
+    desc: CpuRequest
     query: kube_pod_container_resource_requests{resource="cpu",namespace="default", pod=~"%s-\\w{8,}-\\w{4,}"}
-    type: 1
+    type: prometheus
+    typeName: prometheus-dev
     targetType: svc
     aggrFunc: max
-    prometheusName: prometheus-dev
+  - name: CpuLimit
+    desc: CpuLimit
+    query: kube_pod_container_resource_limits{resource="cpu", namespace="default", pod=~"%s-\\w{8,}-\\w{4,}"}
+    type: prometheus
+    typeName: prometheus-dev
+    targetType: svc
+    aggrFunc: max
+  - name: CpuLimit
+    desc: CpuLimit
+    query: kube_pod_container_resource_limits{resource="cpu", namespace="default", pod=~"%s-\\w{8,}-\\w{4,}"}
+    type: prometheus
+    typeName: prometheus-dev
+    targetType: svc
+    aggrFunc: max
+  - name: MemUsage
+    desc: 使用内存
+    query: sum(container_memory_usage_bytes{pod=~"%s-\\w{8,}-\\w{4,}"}) by (pod)
+    type: prometheus
+    typeName: prometheus-dev
+    targetType: svc
+    aggrFunc: max
+  - name: MemRequest
+    desc: MemRequest
+    query: kube_pod_container_resource_requests{resource="memory", namespace="default", pod=~"%s-\\w{8,}-\\w{4,}"}
+    type: prometheus
+    typeName: prometheus-dev
+    targetType: svc
+    aggrFunc: max
 cron:
   prometheus:
     enableDistributedTask: false
